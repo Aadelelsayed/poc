@@ -9,8 +9,8 @@ import {
 
 const settings = {
   preview: {
-    h: 100,
-    w: 160
+    h: 105,
+    w: 165
   },
 
   container: {
@@ -34,7 +34,7 @@ export default class Car extends Component {
         <View style={styles.details}>
           <Text
             style={styles.title}>
-              {this.props.data.makeEn || this.props.data.modelEn}
+              {this.props.data.makeEn.substring(0, 30) || this.props.data.modelEn.substring(0, 30)}
           </Text>
           <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
               <Text
@@ -46,18 +46,32 @@ export default class Car extends Component {
               </Text>
           </View>
           <View style={styles.info}>
-            <Text style={styles.lot}>
-              Lot #
-              {this.props.data.AuctionInfo.lot}
-            </Text>
-            <Text style={styles.bids}>
-              Bids
-              {this.props.data.AuctionInfo.bids}
-            </Text>
-            <Text style={styles.time}>
-              Time Remaining
-              {this.props.data.AuctionInfo.endDate}
-            </Text>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoItemTitle}>
+                Lot #
+              </Text>
+              <Text style={styles.infoItemValue}>
+                {this.props.data.AuctionInfo.lot}
+              </Text>
+            </View>
+
+            <View style={styles.infoItem}>
+              <Text style={styles.infoItemTitle}>
+                Bids
+              </Text>
+              <Text style={styles.infoItemValue}>
+                {this.props.data.AuctionInfo.bids}
+              </Text>
+            </View>
+
+            <View style={styles.infoItem}>
+              <Text style={styles.infoItemTitle}>
+                Time Left
+              </Text>
+              <Text style={styles.infoItemValue}>
+                {this.props.data.AuctionInfo.endDate}
+              </Text>
+            </View>
           </View>
         </View>
 			</View>
@@ -131,7 +145,8 @@ const styles = StyleSheet.create({
   info: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent:'center'
+    justifyContent:'center',
+    height: 25
   },
 
   lot: {
@@ -146,5 +161,21 @@ const styles = StyleSheet.create({
 
   time: {
     flex: 1
+  },
+
+  infoItem: {
+    flex: 1,
+    alignItems: 'flex-start'
+  },
+
+  infoItemTitle: {
+    color: '#c4cccf',
+    fontSize: 13,
+    fontFamily: 'Roboto-Regular'
+  },
+
+  infoItemValue: {
+    color: '#404040',
+    fontFamily: 'Roboto-Medium'
   }
 })

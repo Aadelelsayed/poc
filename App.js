@@ -14,14 +14,12 @@ import {
 
 import { ThemeProvider, Button } from 'react-native-material-ui';
 import CarList from './components/CarList';
-import EAStatusBar from './components/EAStatusBar';
 
 class App extends Component<{}> {
   render() {
     return (
       <View style={styles.container}>
-				<EAStatusBar style={{flex: 1, flexDirection: 'row'}}></EAStatusBar>
-				<CarList style={{flex: 2}}></CarList>
+				<CarList style={{flex: 2, zIndex: 2}}></CarList>
 			</View>
     );
   }
