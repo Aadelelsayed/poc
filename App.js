@@ -11,16 +11,27 @@ import {
   Text,
 	View
 } from 'react-native';
+import { StackNavigator } from 'react-navigation';
 
-import { ThemeProvider, Button } from 'react-native-material-ui';
 import CarList from './components/CarList';
+import CarDetail from './components/CarDetail';
+
+const MainApp = StackNavigator(
+  {
+    Home: { screen: CarList },
+    Detail: { screen: CarDetail }
+  },
+  {
+    headerMode: 'none',
+    navigationOptions: {
+      headerVisible: false
+    }
+  });
 
 class App extends Component<{}> {
   render() {
     return (
-      <View style={styles.container}>
-				<CarList style={{flex: 2, zIndex: 2}}></CarList>
-			</View>
+      <MainApp />
     );
   }
 }
@@ -28,9 +39,7 @@ class App extends Component<{}> {
 export default class Main extends React.Component {
 	render() {
 		return (
-			<ThemeProvider>
-				<App />
-			</ThemeProvider>
+      <App />
 		)
 	}
 }
@@ -38,7 +47,7 @@ export default class Main extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3f7fa'
+    backgroundColor: '#f8f9fd'
   },
   welcome: {
     fontSize: 20,

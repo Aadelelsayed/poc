@@ -21,7 +21,7 @@ export default class EAStatusBar extends Component {
 					locations={gradient.locations}
 					style={styles.statusBarBg}>
 
-					<Text style={styles.title}>Cars & Machinery</Text>
+					<Text style={styles.title}>{this.props.title}</Text>
 				</LinearGradient>
 		)
 	}

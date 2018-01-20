@@ -1,14 +1,19 @@
 import React,
-  { Component } from 'react';
+  { PureComponent } from 'react';
 import {
   View,
   StyleSheet,
   Platform,
   Image,
-  Text
+  Text,
+  TouchableHighlight
 } from 'react-native';
 
-export default class Filters extends Component {
+export default class Filters extends PureComponent {
+  _onFilterPress = () => {
+    console.log("filter press");
+  }
+
   render() {
     return(
       <View style={styles.container}>
@@ -59,7 +64,7 @@ const styles = StyleSheet.create({
 
       },
       android: {
-        elevation: 1
+        elevation: 5
       }
     }),
     borderRadius: 4
@@ -74,8 +79,8 @@ const styles = StyleSheet.create({
   },
 
   action: {
-    height: 17,
-    width: 17
+    height: 15,
+    width: 15
   },
 
   actionTitle: {

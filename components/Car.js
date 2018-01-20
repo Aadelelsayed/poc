@@ -1,11 +1,16 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Image,
-  Platform
+  Platform,
+  TouchableHighlight,
+  TouchableOpacity
 } from 'react-native';
+import Fade from './Fade';
+import { NavigationActions } from 'react-navigation';
+import TimerCountdown from 'react-native-timer-countdown';
 
 const settings = {
   preview: {
@@ -19,62 +24,84 @@ const settings = {
   }
 }
 
-export default class Car extends Component {
+const threshold = 60 * 5;
+
+export default class Car extends PureComponent {
   constructor(props){
     super(props);
+
+    this.state = {
+      counterStyle: styles.counter,
+      isPending: false
+    }
+  }
+
+  _onTimeTick = () => {
+    if(threshold > (this.props.data.AuctionInfo.endDate * 60)){
+
+    }
   }
 
 	render() {
 		return(
-			<View style={styles.container}>
-        <Image
-          source={{uri: getPreview(this.props.data.image, settings.preview.h, settings.preview.w)}}
-          style={styles.preview} />
+      <TouchableHighlight
+        onPress={this.props.onPress}>
+        <View style={styles.container}>
+          <Image
+            source={{uri: getPreview(this.props.data.image, settings.preview.h, settings.preview.w)}}
+            style={styles.preview} />
 
-        <View style={styles.details}>
-          <Text
-            style={styles.title}>
-              {this.props.data.makeEn.substring(0, 30) || this.props.data.modelEn.substring(0, 30)}
-          </Text>
-          <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
-              <Text
-                style={styles.price}>
-                {this.props.data.AuctionInfo.currentPrice}
-              </Text>
-              <Text style={styles.currency}>
-                {this.props.data.AuctionInfo.currencyEn}
-              </Text>
-          </View>
-          <View style={styles.info}>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoItemTitle}>
-                Lot #
-              </Text>
-              <Text style={styles.infoItemValue}>
-                {this.props.data.AuctionInfo.lot}
-              </Text>
+          <View style={styles.details}>
+            <Text
+              style={styles.title}>
+                {this.props.data.makeEn.substring(0, 30) || this.props.data.modelEn.substring(0, 30)}
+            </Text>
+            <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
+                <Text
+                  style={styles.price}>
+                  {this.props.data.AuctionInfo.currentPrice.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').replace(/\.00$/,'')}
+                </Text>
+                <Text style={styles.currency}>
+                  {this.props.data.AuctionInfo.currencyEn}
+                </Text>
+            </View>
+            <View style={styles.info}>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoItemTitle}>
+                  Lot #
+                </Text>
+                <Text style={styles.infoItemValue}>
+                  {this.props.data.AuctionInfo.lot}
+                </Text>
+              </View>
+
+              <View style={styles.infoItem}>
+                <Text style={styles.infoItemTitle}>
+                  Bids
+                </Text>
+                <Text style={styles.infoItemValue}>
+                  {this.props.data.AuctionInfo.bids}
+                </Text>
+              </View>
+
+              <View style={styles.infoItem}>
+                <Text style={styles.infoItemTitle}>
+                  Time Left
+                </Text>
+                <Text style={[this.state.counterStyle, (this.props.data.AuctionInfo.endDate * 60) < (60 * 60 * 24 * 5) && styles.almostFinished]}>
+                  <TimerCountdown
+                    initialSecondsRemaining={this.props.data.AuctionInfo.endDate * 60}
+                    allowFontScaling={true}
+                    onTick={this._onTimeTick} />
+                </Text>
+
+              </View>
             </View>
 
-            <View style={styles.infoItem}>
-              <Text style={styles.infoItemTitle}>
-                Bids
-              </Text>
-              <Text style={styles.infoItemValue}>
-                {this.props.data.AuctionInfo.bids}
-              </Text>
-            </View>
-
-            <View style={styles.infoItem}>
-              <Text style={styles.infoItemTitle}>
-                Time Left
-              </Text>
-              <Text style={styles.infoItemValue}>
-                {this.props.data.AuctionInfo.endDate}
-              </Text>
-            </View>
+            <Fade style={styles.newBid}></Fade>
           </View>
         </View>
-			</View>
+      </TouchableHighlight>
 		)
 	}
 }
@@ -94,8 +121,10 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     marginLeft: settings.container.marginLeft,
     marginRight: settings.container.marginRight,
-    marginTop: 15,
+    marginTop: 8,
     overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    padding: 2,
     ...Platform.select({
       ios: {
         shadowOpacity: 0.75,
@@ -118,7 +147,7 @@ const styles = StyleSheet.create({
 
   details: {
       flex: 1.4,
-      padding: 15
+      padding: 10
   },
 
   title: {
@@ -129,15 +158,15 @@ const styles = StyleSheet.create({
 
   price: {
     color: '#fc1935',
-    fontSize: 16,
+    fontSize: 14,
     lineHeight: 30,
     fontFamily: 'Roboto-Medium'
   },
 
   currency: {
     color: '#fc1935',
-    fontFamily: 'Roboto-Light',
-    fontSize: 11,
+    fontFamily: 'Roboto',
+    fontSize: 9,
     lineHeight:18,
     padding: 5
   },
@@ -170,12 +199,28 @@ const styles = StyleSheet.create({
 
   infoItemTitle: {
     color: '#c4cccf',
-    fontSize: 13,
+    fontSize: 11,
     fontFamily: 'Roboto-Regular'
   },
 
   infoItemValue: {
     color: '#404040',
-    fontFamily: 'Roboto-Medium'
+    fontFamily: 'Roboto-Medium',
+    fontSize: 12
+  },
+
+  counter: {
+    color: '#44d5e6',
+    fontSize: 12
+  },
+
+  almostFinished: {
+    color: '#ff2d4a',
+    fontWeight: 'bold'
+  },
+
+  newBid: {
+    height: 2,
+    marginTop: 4
   }
 })
