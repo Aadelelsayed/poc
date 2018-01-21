@@ -6,16 +6,18 @@ import {
   Image,
   Platform,
   TouchableHighlight,
-  TouchableOpacity
+  TouchableOpacity,
+  Animated
 } from 'react-native';
 import Fade from './Fade';
 import { NavigationActions } from 'react-navigation';
 import TimerCountdown from 'react-native-timer-countdown';
+import * as Animatable from 'react-native-animatable';
 
 const settings = {
   preview: {
     h: 105,
-    w: 165
+    w: 210
   },
 
   container: {
@@ -23,6 +25,9 @@ const settings = {
     marginRight: 15
   }
 }
+
+let cIndex = 0;
+const colors = ['#37d1dd', '#43ddb9', '#4edc8a', '#57dd62'];
 
 const threshold = 60 * 5;
 
@@ -34,28 +39,87 @@ export default class Car extends PureComponent {
       counterStyle: styles.counter,
       isPending: false
     }
-  }
 
-  _onTimeTick = () => {
-    if(threshold > (this.props.data.AuctionInfo.endDate * 60)){
-
+    if(!this.props.data.AuctionInfo){
+      console.log(this.props);
     }
   }
 
+  componentDidMount() {
+    if(this.props.data.AuctionInfo.isMoified){
+      this.setState({
+        isModified: true,
+        color: styles.title.color
+      });
+
+      this.animateTitle();
+    }
+  }
+
+  animateTitle = () => {
+    console.log(colors.length, cIndex, colors[cIndex]);
+    if(cIndex != (colors.length - 1) && colors[cIndex] !== 'undefined'){
+
+      this.setState({
+        color: colors[cIndex],
+        isModified: true
+      });
+
+      cIndex++;
+
+      setTimeout(() => {
+        this.animateTitle();
+      }, 1000)
+    } else {
+      cIndex = 0;
+
+      this.setState({
+        isModified: true,
+        color: '#3f3f3f'
+      });
+    }
+  }
+
+  _onTimeTick = () => {
+    // if(threshold > (this.props.data.AuctionInfo.endDate * 60)){
+
+    // }
+  }
+
+  _getTitle = () => {
+    // let title = "";
+
+    // if(this.props.data.makeEn){
+    //   title = this.props.data.makeEn.length > 80 ?
+    //     this.props.data.makeEn.substring(0, 80) : this.props.data.makeEn;
+    // } else if(this.props.data.modelEn){
+    //   title = this.props.data.modelEn.length > 80 ?
+    //     this.props.data.modelEn.substring(0, 80) : this.props.data.modelEn;
+    // }
+
+    return `${this.props.data.makeEn} ${this.props.data.modelEn} ${this.props.data.year != 0 ? this.props.data.year : ''}`;
+  }
 	render() {
 		return(
       <TouchableHighlight
-        onPress={this.props.onPress}>
+        underlayColor="transparent"
+        // onPress={this.props.onPress}>
+        onPress={() => {
+          this.animateTitle();
+        }}>
+
         <View style={styles.container}>
           <Image
             source={{uri: getPreview(this.props.data.image, settings.preview.h, settings.preview.w)}}
             style={styles.preview} />
 
           <View style={styles.details}>
-            <Text
-              style={styles.title}>
-                {this.props.data.makeEn.substring(0, 30) || this.props.data.modelEn.substring(0, 30)}
-            </Text>
+            <Animatable.Text
+              transition="color"
+              duration={1500}
+              style={[styles.title, this.state.isModified && { color: this.state.color }]}>
+                {this._getTitle()}
+            </Animatable.Text>
             <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
                 <Text
                   style={styles.price}>
@@ -88,9 +152,9 @@ export default class Car extends PureComponent {
                 <Text style={styles.infoItemTitle}>
                   Time Left
                 </Text>
-                <Text style={[this.state.counterStyle, (this.props.data.AuctionInfo.endDate * 60) < (60 * 60 * 24 * 5) && styles.almostFinished]}>
+                <Text style={[this.state.counterStyle, (this.props.data.AuctionInfo.endDate * 1000) < (60 * 60 * 24 * 5) && styles.almostFinished]}>
                   <TimerCountdown
-                    initialSecondsRemaining={this.props.data.AuctionInfo.endDate * 60}
+                    initialSecondsRemaining={this.props.data.AuctionInfo.endDate * 1000}
                     allowFontScaling={true}
                     onTick={this._onTimeTick} />
                 </Text>
@@ -98,7 +162,7 @@ export default class Car extends PureComponent {
               </View>
             </View>
 
-            <Fade style={styles.newBid}></Fade>
+            {/* <Fade style={styles.newBid}></Fade> */}
           </View>
         </View>
       </TouchableHighlight>
@@ -107,6 +171,8 @@ export default class Car extends PureComponent {
 }
 
 const getPreview = (uri, h, w) => {
+  if(!uri) return "";
+
   uri = uri.replace("[h]", h)
   uri = uri.replace("[w]", w);
 
@@ -141,7 +207,7 @@ const styles = StyleSheet.create({
   preview: {
     height: settings.preview.h,
     width: settings.preview.w,
-    flex: 1,
+    flex: 1.3,
     flexDirection: 'row'
   },
 

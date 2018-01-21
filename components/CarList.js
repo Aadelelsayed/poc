@@ -31,26 +31,31 @@ export default class CarList extends React.Component {
 
 		this.state = {
       isLoading: true,
-      refreshing: false
+      refreshing: false,
+      totalItems: 0
     }
 	}
 
 	componentDidMount() {
-    getCars()
-      .then((res) => {
-        cars = res.Cars;
-        ticks = res.Ticks;
+    // this.setState({
+    //   isLoading: true,
+    //   isLoadMore: false
+    // })
+    // getCars()
+    //   .then((res) => {
+    //     ticks = res.Ticks;
 
-        this.setState({
-          isLoading: false,
-          dataSouce: ds.cloneWithRows(cars),
-          totalItems: res.count,
-          isLoadMore: false,
-          data: cars
-        }, function(){
+    //     this.setState({
+    //       isLoading: false,
+    //       dataSouce: ds.cloneWithRows(cars),
+    //       totalItems: res.count,
+    //       isLoadMore: false,
+    //       data: res.Cars
+    //     }, function(){
 
-        });
-      });
+    //     });
+    //   });
+      this._onFetch();
 
       this.interval = setInterval(this.onTick.bind(this), refreshInterval);
   }
@@ -60,46 +65,56 @@ export default class CarList extends React.Component {
   }
 
   onTick(){
-    console.log("This is on tick");
+    if(this.state.refreshing) return;
 
     getUpdatedCars()
       .then((res) => {
-        let cars = this.state.data;
 
         if(res.Cars.length > 0){
-          res.Cars.forEach((car) => {
-            // let foundCar = cars.find((elm) => {
+          let cars = this.state.data;
+
+          // cars = cars.concat(res.Cars);
+          // let newCars = res.Cars.splice(cars.length, res.Cars.length - cars.length);
+
+          // res.Cars.forEach((car, index) => {
+            // cars = cars.concat(res.Cars);
+            // let carIndex = cars.findIndex((elm) => {
             //   return elm.carID == car.carID;
             // });
 
-            let carIndex = cars.findIndex((elm) => {
-              return elm.carID == car.carID;
-            });
+            // if(carIndex !== -1){
+            //   if(carIndex != index){
+            //     cars.splice(carIndex, 1);
+            //     cars[index] = car;
+            //   }
 
+            //   let foundCar = cars[carIndex];
 
-            if(carIndex !== -1){
-              let foundCar = cars[carIndex];
-
-              if(foundCar.AuctionInfo.bids < car.AuctionInfo.bids){
-                cars[carIndex] = car;
-                cars[carIndex].shouldFlash = true;
-              }
-
-              console.log(carIndex, foundCar.AuctionInfo.bids);
-            }
-          });
+            //   if(foundCar.AuctionInfo.bids < car.AuctionInfo.bids){
+            //     cars[carIndex] = car;
+            //     cars[carIndex].shouldFlash = true;
+            //   }
+            // } else {
+            //   cars[index] = car;
+            // }
+          // });
+          console.log(res.Cars);
+          if(res.Cars.length > cars){
+            cars = res.Cars.slice(0, cars.length);
+          } else {
+            cars = res.Cars;
+          }
 
           this.setState({
             data: cars
           }, () => {
-            console.log(this.state.data);
+            // console.log(this.state.data);
           });
         }
       });
   }
 
   _onPress = (carId) => {
-    console.log("i am clicked");
     const nav = NavigationActions.navigate({
       routeName: 'Detail',
       params: {
@@ -137,32 +152,59 @@ export default class CarList extends React.Component {
     )
   }
 
+  _renderFooter = () => {
+    return(
+      <View style={{flex: 1, alignContent: 'center', alignItems: 'center', paddingTop: 20, paddingBottom: 20}}>
+        <ActivityIndicator />
+      </View>
+    )
+  }
+
   _onFetch = () => {
-    console.log("should load more");
     if(this.state.isLoadMore) return;
 
-    page++;
+    this.setState({
+      isLoadMore: true
+    });
 
     let totalCount = itemsPerPage * page;
-    let totalItems = this.state.totalItems;
+    let totalItems = parseInt(this.state.totalItems);
+
     let itemsToFetch = itemsPerPage;
 
-    if(((totalItems * page) - totalCount) < totalItems){
+    console.log(totalCount, totalCount, totalItems);
+
+    if((totalItems - totalCount) > totalItems - itemsPerPage){
       itemsPerPage = totalItems - totalCount;
     }
 
     getCars()
       .then((res) => {
-        cars = cars.concat(res.Cars);
+        // cars = cars.map((x) => {
+        //   let currentIndex = cars.findIndex(y => y.carID == x.carID);
+
+        //   return currentIndex === -1;
+        // });
+        let cars = this.state.data;
+
+        if(this.state.data && this.state.data.length > 0){
+          cars = cars.concat(res.Cars);
+        } else {
+          cars = res.Cars
+        }
+
         ticks = res.Ticks;
 
         this.setState({
           isLoadMore: false,
-          dataSouce: this.state.dataSouce.cloneWithRows(cars),
-          data: cars
+          data: cars,
+          totalItems: res.count,
+          isLoading: false
         }, function(){
 
         });
+
+        page++;
       });
   }
 
@@ -172,14 +214,17 @@ export default class CarList extends React.Component {
     });
 
     page = 1;
-    itemsPerPage = 25;
+    itemsPerPage = 10;
+
 
     getCars()
       .then((res) => {
         ticks = res.Ticks;
 
+        console.log(res.Cars.length)
+
+
         this.setState({
-          dataSouce: ds.cloneWithRows(res.Cars),
           refreshing: false,
           data: res.Cars
         })
@@ -221,6 +266,7 @@ export default class CarList extends React.Component {
           renderItem={this._renderItem}
           keyExtractor={this._keyExtractor}
           ListHeaderComponent={this._renderHeader}
+          ListFooterComponent={this._renderFooter}
           onEndReached={this._onFetch}
           refreshing={this.state.refreshing}
           onRefresh={this._onRefresh.bind(this)} />
@@ -233,7 +279,7 @@ export default class CarList extends React.Component {
 const getCars = () => {
   let endPoint = `${api.host}&page=${page}&itemperpage=${itemsPerPage}`;
 
-  // console.log(`Fetching, ${endPoint}`)
+  console.log(`Fetching, ${endPoint}`)
 
   return fetch(endPoint)
 			.then((res) => res.json());
@@ -241,6 +287,8 @@ const getCars = () => {
 
 const getUpdatedCars = () => {
   let endPoint = `${api.host}&ticks=${ticks}`;
+
+  console.log(endPoint);
 
   return fetch(endPoint)
 			.then((res) => res.json());
