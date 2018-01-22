@@ -79,7 +79,7 @@ export default class CarDetail extends React.Component {
     }
 
     return(
-      <View style={{flex: 1, flexDirection: 'column'}}>
+      <View style={{flex: 1, flexDirection: 'column', backgroundColor: 'transparent'}}>
         <ScrollView>
           <EAStatusBar
             showIcon={true}
@@ -153,7 +153,9 @@ export default class CarDetail extends React.Component {
           </View>
         </ScrollView>
 
-        <Image source={require('../assets/images/ic_bid.png')} style={{height: 80, width: 80, marginBottom: -23, zIndex: 20, alignSelf: 'flex-end', marginRight: 30}} />
+        <Image
+          source={require('../assets/images/ic_bid.png')}
+          style={{height: 80, width: 80, marginBottom: -23, zIndex: 20, alignSelf: 'flex-end', marginRight: 30, backgroundColor: 'transparent'}} />
 
         <View style={styles.footer}>
           <BidFooter auctionInfo={this.state.car.AuctionInfo} />

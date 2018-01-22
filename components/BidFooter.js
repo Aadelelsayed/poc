@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     flexDirection: 'row',
     flex: 1,
-    overflow: 'visible'
+    overflow: 'hidden'
   },
 
   priceContainer: {

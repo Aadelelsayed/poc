@@ -12,7 +12,7 @@ import {
 import Fade from './Fade';
 import { NavigationActions } from 'react-navigation';
 import TimerCountdown from 'react-native-timer-countdown';
-import * as Animatable from 'react-native-animatable';
+import Placeholder from 'rn-placeholder';
 
 const settings = {
   preview: {
@@ -101,71 +101,67 @@ export default class Car extends PureComponent {
   }
 	render() {
 		return(
-      <TouchableHighlight
-        underlayColor="transparent"
-        // onPress={this.props.onPress}>
-        onPress={() => {
-          this.animateTitle();
-        }}>
+        <TouchableOpacity
+          style={{height: 109}}
+          onPress={this.props.onPress}>
 
-        <View style={styles.container}>
-          <Image
-            source={{uri: getPreview(this.props.data.image, settings.preview.h, settings.preview.w)}}
-            style={styles.preview} />
+          <View style={styles.container}>
+            <Image
+              source={{uri: getPreview(this.props.data.image, settings.preview.h, settings.preview.w)}}
+              style={styles.preview}
+              onLoadEnd={() => { console.log("loaded"); this.setState({isReady: true})}} />
 
-          <View style={styles.details}>
-            <Animatable.Text
-              transition="color"
-              duration={1500}
-              style={[styles.title, this.state.isModified && { color: this.state.color }]}>
-                {this._getTitle()}
-            </Animatable.Text>
-            <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
-                <Text
-                  style={styles.price}>
-                  {this.props.data.AuctionInfo.currentPrice.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').replace(/\.00$/,'')}
-                </Text>
-                <Text style={styles.currency}>
-                  {this.props.data.AuctionInfo.currencyEn}
-                </Text>
+            <View style={styles.details}>
+              <Text
+                style={styles.title}>
+                  {this._getTitle()}
+              </Text>
+              <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
+                  <Text
+                    style={styles.price}>
+                    {this.props.data.AuctionInfo.currentPrice.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').replace(/\.00$/,'')}
+                  </Text>
+                  <Text style={styles.currency}>
+                    {this.props.data.AuctionInfo.currencyEn}
+                  </Text>
+              </View>
+              <View style={styles.info}>
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoItemTitle}>
+                    Lot #
+                  </Text>
+                  <Text style={styles.infoItemValue}>
+                    {this.props.data.AuctionInfo.lot}
+                  </Text>
+                </View>
+
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoItemTitle}>
+                    Bids
+                  </Text>
+                  <Text style={styles.infoItemValue}>
+                    {this.props.data.AuctionInfo.bids}
+                  </Text>
+                </View>
+
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoItemTitle}>
+                    Time Left
+                  </Text>
+                  <Text style={[this.state.counterStyle, (this.props.data.AuctionInfo.endDate * 1000) < (60 * 60 * 24 * 5) && styles.almostFinished]}>
+                    <TimerCountdown
+                      initialSecondsRemaining={this.props.data.AuctionInfo.endDate * 1000}
+                      allowFontScaling={true}
+                      onTick={this._onTimeTick} />
+                  </Text>
+
+                </View>
+              </View>
+
+              {/* <Fade style={styles.newBid}></Fade> */}
             </View>
-            <View style={styles.info}>
-              <View style={styles.infoItem}>
-                <Text style={styles.infoItemTitle}>
-                  Lot #
-                </Text>
-                <Text style={styles.infoItemValue}>
-                  {this.props.data.AuctionInfo.lot}
-                </Text>
-              </View>
-
-              <View style={styles.infoItem}>
-                <Text style={styles.infoItemTitle}>
-                  Bids
-                </Text>
-                <Text style={styles.infoItemValue}>
-                  {this.props.data.AuctionInfo.bids}
-                </Text>
-              </View>
-
-              <View style={styles.infoItem}>
-                <Text style={styles.infoItemTitle}>
-                  Time Left
-                </Text>
-                <Text style={[this.state.counterStyle, (this.props.data.AuctionInfo.endDate * 1000) < (60 * 60 * 24 * 5) && styles.almostFinished]}>
-                  <TimerCountdown
-                    initialSecondsRemaining={this.props.data.AuctionInfo.endDate * 1000}
-                    allowFontScaling={true}
-                    onTick={this._onTimeTick} />
-                </Text>
-
-              </View>
-            </View>
-
-            {/* <Fade style={styles.newBid}></Fade> */}
           </View>
-        </View>
-      </TouchableHighlight>
+        </TouchableOpacity>
 		)
 	}
 }
@@ -190,6 +186,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     overflow: 'hidden',
     backgroundColor: '#FFFFFF',
+    height: 109,
     padding: 2,
     ...Platform.select({
       ios: {

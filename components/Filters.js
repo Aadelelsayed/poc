@@ -6,12 +6,29 @@ import {
   Platform,
   Image,
   Text,
-  TouchableHighlight
+  TouchableHighlight,
+  TouchableOpacity
 } from 'react-native';
 
+import SortModal from './modals/Sort';
+
 export default class Filters extends PureComponent {
+  constructor(props){
+    super(props);
+  }
+
   _onFilterPress = () => {
     console.log("filter press");
+  }
+
+  _toggleSort = () => {
+    console.log("toggle sort");
+
+    this.refs.sortModal._open();
+  }
+
+  _onSort = (sortKey, sortDir) => {
+    this.props.onSort(sortKey, sortDir);
   }
 
   render() {
@@ -26,14 +43,18 @@ export default class Filters extends PureComponent {
           </Text>
         </View>
 
-        <View style={styles.filter}>
-          <Image
-            source={require('../assets/images/ic_sort.png')}
-            style={styles.action} />
-          <Text style={styles.actionTitle}>
-            Sort
-          </Text>
-        </View>
+        <TouchableOpacity
+          style={styles.filter}
+          onPress={this._toggleSort}>
+          <View style={styles.filter}>
+            <Image
+              source={require('../assets/images/ic_sort.png')}
+              style={styles.action} />
+            <Text style={styles.actionTitle}>
+              Sort
+            </Text>
+          </View>
+        </TouchableOpacity>
 
         <View style={[styles.filter, { borderLeftWidth: 1, borderLeftColor: '#dbdfe2'}]}>
           <Image
@@ -43,6 +64,10 @@ export default class Filters extends PureComponent {
             Grid View
           </Text>
         </View>
+
+        <SortModal
+          onPress={this._onSort}
+          ref="sortModal" />
       </View>
     )
   }
