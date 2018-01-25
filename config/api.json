@@ -1,4 +1,4 @@
 {
-  "ahost": "https://api.emiratesauction.com/v2/carsonline?source=mweb",
-  "host": "http://10.30.101.28:9998/v2/carsonline?source=mweb"
+  "host": "https://api.emiratesauction.com/v2/carsonline?source=mweb",
+  "ahost": "http://10.30.101.28:9998/v2/carsonline?source=mweb"
 }

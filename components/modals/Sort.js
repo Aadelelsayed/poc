@@ -12,6 +12,11 @@ import {
 
 const sortItems = [
     {
+      title: "No Sort",
+      sortKey: null,
+      sortDir: -1
+    },
+    {
       title: "High Price",
       sortKey: "currentPrice",
       sortDir: 1
@@ -23,38 +28,40 @@ const sortItems = [
     },
     {
       title: "High Lot",
-      sortKey: "AuctionInfo.currentPrice",
+      sortKey: "lot",
       sortDir: 1
     },
     {
       title: "Low Lot",
-      sortKey: "AuctionInfo.currentPrice",
+      sortKey: "lot",
       sortDir: 2
     },
     {
       title: "High Bids",
-      sortKey: "AuctionInfo.currentPrice",
-      sortDir: "desc"
+      sortKey: "bids",
+      sortDir: 1
     },
     {
       title: "Low Bids",
-      sortKey: "AuctionInfo.currentPrice",
-      sortDir: "desc"
+      sortKey: "bids",
+      sortDir: 2
     },
     {
       title: "Ending Soon",
-      sortKey: "AuctionInfo.currentPrice",
-      sortDir: "desc"
+      sortKey: "endDate",
+      sortDir: 2
     }
 ]
 
 export default class SortModal extends PureComponent {
   constructor(probs){
     super(probs);
+
+    console.log(this.state);
   }
 
   state = {
-    visible: true
+    visible: false
   }
 
   _open(){

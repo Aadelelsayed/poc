@@ -5,7 +5,8 @@ import {
   View,
   StyleSheet,
   Image,
-  Text
+  Text,
+  Dimensions
 } from 'react-native';
 
 import Carousel, { ParallaxImage } from 'react-native-snap-carousel';
@@ -17,7 +18,12 @@ export default class ImageCarousel extends PureComponent {
   constructor(props){
     super(props);
 
-    console.log(props.images);
+    this.state = {
+
+    }
+
+    const { activeSlide } = this.state;
+    // console.log(props.images);
   }
 
   componentDidMount(){
@@ -31,9 +37,11 @@ export default class ImageCarousel extends PureComponent {
       <View style={styles.slide}>
         <ParallaxImage
           source={{uri: item.replace("[h]", height).replace("[w]", width) }}
-          style={{height: height, width: width}}
-          containerStyle={{height: height, width: width}}
-          parallaxFactor={1}
+          style={{height: height, width: width, borderRadius: 4}}
+          containerStyle={{height: 200, width: 320}}
+          parallaxFactor={0}
+          showSpinner={true}
+          spinnerColor={'rgba(255,255,255,0.4)'}
           {...parallaxProps} />
       </View>
     )
@@ -43,11 +51,26 @@ export default class ImageCarousel extends PureComponent {
     return(
       <Carousel
         data={this.props.images}
+        inactiveSlideScale={0.70}
+        inactiveSlideOpacity={0.8}
+        snapToAlignment={'center'}
+        enableMomentum={false}
+        removeClippedSubviews={false}
+        activeSlideOffset={0}
         renderItem={this._renderItem}
         hasParallaxImages={true}
-        itemWidth={300}
-        sliderWidth={300}
-        itemHeight={500} />
+        itemWidth={320}
+        containerCustomStyle={{ marginTop: -10}}
+        activeSlideAlignment={'center'}
+        sliderWidth={width}
+        onSnapToItem={(index) => {
+          this.setState({ activeSlide: index })
+
+          if(this.props.onSwipe) {
+            this.props.onSwipe(index);
+          }
+        }}
+        itemHeight={height} />
     )
   }
 }

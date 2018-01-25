@@ -1,5 +1,5 @@
 import React, {
-  Component
+  Component, PureComponent
 } from 'react';
 
 import {
@@ -8,7 +8,11 @@ import {
   ActivityIndicator,
   Image,
   Text,
-  ScrollView
+  ScrollView,
+  Animated,
+  TouchableHighlight,
+  TouchableOpacity,
+  Easing
 } from 'react-native';
 import { NavigationActions } from 'react-navigation';
 import EAStatusBar from './EAStatusBar';
@@ -17,7 +21,9 @@ import Icon from '../node_modules/react-native-vector-icons/FontAwesome';
 import TimerCountDown from 'react-native-timer-countdown';
 import ImageCarousel from './ImageCarousel';
 
-const api = require('../config/api.json');
+const api = require('../config/api.json'),
+EXPANDED_HIEGHT = 0,
+REGULAR_HIEGHT = -230;
 
 const settings = {
   preview: {
@@ -31,15 +37,36 @@ const settings = {
   }
 }
 
-export default class CarDetail extends React.Component {
+export default class CarDetail extends PureComponent {
   constructor(props){
     super(props);
 
     this.state = {
       car: null,
       isLoading: true,
-      currentImage: 1
+      currentImage: 1,
+      footerHeight: new Animated.Value(REGULAR_HIEGHT),
+      footerExpanded: false
     };
+  }
+
+  _toggle = () => {
+    this.state.footerExpanded = !this.state.footerExpanded;
+
+    Animated.timing(
+      this.state.footerHeight,
+      {
+        toValue: this.state.footerExpanded ? REGULAR_HIEGHT : EXPANDED_HIEGHT,
+        easing: this.state.footerExpanded ? Easing.bounce : Easing.ease,
+        duration: this.state.footerExpanded ? 500 : 200
+      }
+    ).start();
+
+    // this.setState({
+    //   footerExpanded: !this.state.footerExpanded
+    //  }, () => {
+
+    //  });
   }
 
   componentDidMount(){
@@ -93,6 +120,13 @@ export default class CarDetail extends React.Component {
                 style={styles.image} /> */}
 
               <ImageCarousel
+                onSwipe={(index) => {
+                  this.setState({
+                    currentImage: index + 1
+                  });
+
+                  console.log(index);
+                }}
                 images={this.state.car.Info.Images}
                 style={styles.image} />
 
@@ -145,7 +179,7 @@ export default class CarDetail extends React.Component {
                     paddingBottom: 5}}>{'Overview'.toUpperCase()}</Text>
                 </View>
 
-                <Text style={styles.description}>
+                <Text style={[styles.description, {paddingBottom: 35}]}>
                   {this.state.car.Info.descriptionEn}
                 </Text>
               </View>
@@ -153,13 +187,25 @@ export default class CarDetail extends React.Component {
           </View>
         </ScrollView>
 
-        <Image
-          source={require('../assets/images/ic_bid.png')}
-          style={{height: 80, width: 80, marginBottom: -23, zIndex: 20, alignSelf: 'flex-end', marginRight: 30, backgroundColor: 'transparent'}} />
+        <View style={{flex: 1, flexDirection: 'row', alignContent: 'flex-end', justifyContent: 'flex-end'}}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={{marginBottom: -25, alignSelf: 'flex-end', marginRight: 30, zIndex: 20, width: 71}}
+            onPress={this._toggle}>
 
-        <View style={styles.footer}>
-          <BidFooter auctionInfo={this.state.car.AuctionInfo} />
+            <Image
+              source={require('../assets/images/ic_bid.png')}
+              style={{height: 70, width: 70, backgroundColor: 'transparent'}} />
+
+          </TouchableOpacity>
         </View>
+
+        <Animated.View style={[styles.footer, {marginBottom: this.state.footerHeight, height: 300 }]}>
+          <BidFooter
+            ref="footer"
+            expanded={false}
+            auctionInfo={this.state.car.AuctionInfo} />
+        </Animated.View>
       </View>
     )
   }
@@ -228,7 +274,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     backgroundColor: '#2f3448',
-    height: 70,
     overflow: 'visible'
   },
 

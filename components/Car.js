@@ -12,7 +12,6 @@ import {
 import Fade from './Fade';
 import { NavigationActions } from 'react-navigation';
 import TimerCountdown from 'react-native-timer-countdown';
-import Placeholder from 'rn-placeholder';
 
 const settings = {
   preview: {
@@ -37,12 +36,37 @@ export default class Car extends PureComponent {
 
     this.state = {
       counterStyle: styles.counter,
-      isPending: false
+      isPending: false,
+      bgColor: new Animated.Value(1)
     }
+
+    this.anmCount = 0;
 
     if(!this.props.data.AuctionInfo){
       console.log(this.props);
     }
+  }
+
+  _animateView() {
+    Animated.sequence([
+      Animated.timing(
+        this.state.bgColor,
+        {
+          toValue: 0.7
+        }
+      ),
+      Animated.timing(
+        this.state.bgColor,
+        {
+          toValue: 1
+        }
+      )
+    ]).start(() => {
+      if(this.anmCount != 10){
+        this._animateView();
+        this.anmCount++;
+      }
+    });
   }
 
   componentDidMount() {
@@ -52,7 +76,8 @@ export default class Car extends PureComponent {
         color: styles.title.color
       });
 
-      this.animateTitle();
+      // this.animateTitle();
+      this._animateView();
     }
   }
 
@@ -97,15 +122,18 @@ export default class Car extends PureComponent {
     //     this.props.data.modelEn.substring(0, 80) : this.props.data.modelEn;
     // }
 
-    return `${this.props.data.makeEn} ${this.props.data.modelEn} ${this.props.data.year != 0 ? this.props.data.year : ''}`;
+    const make = this.props.data.makeEn != "" ? `${this.props.data.makeEn} ` : '';
+    const title = `${this.props.data.modelEn} ${this.props.data.year != 0 ? this.props.data.year : ''}`;
+    return title.length > 30 ? title.substr(0, 30) : title;
   }
 	render() {
 		return(
         <TouchableOpacity
+        activeOpacity={1}
           style={{height: 109}}
           onPress={this.props.onPress}>
 
-          <View style={styles.container}>
+          <Animated.View style={[styles.container, {opacity: this.state.bgColor}]}>
             <Image
               source={{uri: getPreview(this.props.data.image, settings.preview.h, settings.preview.w)}}
               style={styles.preview}
@@ -116,7 +144,7 @@ export default class Car extends PureComponent {
                 style={styles.title}>
                   {this._getTitle()}
               </Text>
-              <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
+              <View style={[{flexDirection: 'row', alignItems: 'flex-start'}]}>
                   <Text
                     style={styles.price}>
                     {this.props.data.AuctionInfo.currentPrice.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').replace(/\.00$/,'')}
@@ -160,7 +188,7 @@ export default class Car extends PureComponent {
 
               {/* <Fade style={styles.newBid}></Fade> */}
             </View>
-          </View>
+          </Animated.View>
         </TouchableOpacity>
 		)
 	}
@@ -185,7 +213,6 @@ const styles = StyleSheet.create({
     marginRight: settings.container.marginRight,
     marginTop: 8,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
     height: 109,
     padding: 2,
     ...Platform.select({
@@ -211,6 +238,10 @@ const styles = StyleSheet.create({
   details: {
       flex: 1.4,
       padding: 10
+  },
+
+  hidden: {
+    display: 'none'
   },
 
   title: {

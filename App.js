@@ -31,7 +31,7 @@ const MainApp = StackNavigator(
 class App extends Component<{}> {
   render() {
     return (
-      <MainApp />
+      <MainApp ref={nav => { this.navigator = nav; }} />
     );
   }
 }

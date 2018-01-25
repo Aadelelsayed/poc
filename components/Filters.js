@@ -11,6 +11,9 @@ import {
 } from 'react-native';
 
 import SortModal from './modals/Sort';
+import FilterModal from './modals/Filter';
+
+
 
 export default class Filters extends PureComponent {
   constructor(props){
@@ -18,11 +21,11 @@ export default class Filters extends PureComponent {
   }
 
   _onFilterPress = () => {
-    console.log("filter press");
+    // console.log("filter press");
   }
 
   _toggleSort = () => {
-    console.log("toggle sort");
+    // console.log("toggle sort");
 
     this.refs.sortModal._open();
   }
@@ -45,7 +48,7 @@ export default class Filters extends PureComponent {
 
         <TouchableOpacity
           style={styles.filter}
-          onPress={this._toggleSort}>
+          onPress={() => this._toggleSort()}>
           <View style={styles.filter}>
             <Image
               source={require('../assets/images/ic_sort.png')}
@@ -68,6 +71,11 @@ export default class Filters extends PureComponent {
         <SortModal
           onPress={this._onSort}
           ref="sortModal" />
+
+        <FilterModal
+          carTypes={this.props.carTypes}
+          onPress={this._onFilter}
+          ref="filterModal" />
       </View>
     )
   }
